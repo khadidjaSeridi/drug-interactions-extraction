@@ -64,10 +64,10 @@ config = LoraConfig(
 model = get_peft_model(model,config)
 
 # print_trainable_parameters(model) 
+data_dir = os.getenv("DATA_DIR", "data")  # Default to "data" if not set
+file_path = os.path.join(data_dir, "preprocessed_drug_relation_extraction_train.json")
 
-#raw_data = load_dataset("SkyHuReal/DrugBank-Alpaca", trust_remote_code=True, split="train")
-
-with open("data/preprocessed_drug_relation_extraction_train.json", "r", encoding="utf-8") as f:
+with open(file_path, "r", encoding="utf-8") as f:
     mapping = json.load(f)  # mapping is a list of strings
 
 

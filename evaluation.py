@@ -5,6 +5,7 @@ import datasets
 import evaluate  
 from peft import PeftModel
 import json
+import os
 
 # Define model and tokenizer paths
 MODEL_NAME = "bigscience/bloom-560m"  # Base model
@@ -15,8 +16,12 @@ base_model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=torch.
 model = PeftModel.from_pretrained(base_model, FINETUNED_MODEL_PATH)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
+data_dir = os.getenv("DATA_DIR", "data")  # Default to "data" if not set
+file_path = os.path.join(data_dir, "preprocessed_drug_relation_extraction_train.json")
+
+
 # Load evaluation dataset
-raw_data =  json.loads(open("data/preprocessed_drug_relation_extraction_test.json").read())
+raw_data =  json.loads(open(file_path).read())
 
 dataset = Dataset.from_list(raw_data)
 
@@ -24,6 +29,7 @@ generation_config = GenerationConfig(**{
    # "temperature": 0.1,    # Minimal randomness
    # "top_k": 5,            # Only consider the top 5 tokens
    # "top_p": 0.3,          # Limit token choices to 30% probability mass
+    "return_overflowing_tokens":True,  # Return all generated tokens
     "max_new_tokens": 20,  # Avoid overly long responses
     "repetition_penalty": 1.2  # Prevents repeating input text
 }) # Create a GenerationConfig object
