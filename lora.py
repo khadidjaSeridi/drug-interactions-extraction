@@ -66,18 +66,12 @@ model = get_peft_model(model,config)
 # print_trainable_parameters(model) 
 
 #raw_data = load_dataset("SkyHuReal/DrugBank-Alpaca", trust_remote_code=True, split="train")
-#raw_data =  json.load(open("data/preprocessed_drug_relation_extraction_train.json"))
 
 with open("data/preprocessed_drug_relation_extraction_train.json", "r", encoding="utf-8") as f:
     mapping = json.load(f)  # mapping is a list of strings
 
 
 dataset = Dataset.from_list([{"text": text} for text in mapping])
-
-# Function to tokenize the dataset
-def tokenize_function(example):
-    return tokenizer(example, truncation=True, padding="max_length", max_length=512)
-
 
 # Apply tokenization
 tokenized_data = dataset.map(lambda samples: tokenizer(samples["text"]), batched=True)
@@ -88,10 +82,10 @@ trainer = transformers.Trainer(
     model=model,
     train_dataset=tokenized_data,
     args=transformers.TrainingArguments(
-        gradient_accumulation_steps=1,
-        per_device_train_batch_size=3,
+        gradient_accumulation_steps=8,
+        per_device_train_batch_size=2,
         warmup_steps=100,
-        max_steps=200, 
+        max_steps=1000, 
         learning_rate=2e-4,
         fp16=True,
         logging_steps=1,
